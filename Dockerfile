@@ -19,7 +19,8 @@ ARG SERVER_MAX_SLOTS=16
 
 RUN /usr/bin/apt update -qq > /dev/null 2> /dev/stderr
 RUN /usr/bin/apt install -y -qq apt-utils > /dev/null 2> /dev/stderr
-RUN /usr/bin/apt install -y -qq zip unzip tar wget expect mono-complete > /dev/null 2> /dev/stderr
+RUN /usr/bin/apt install -y -qq zip unzip tar wget mono-complete > /dev/null 2> /dev/stderr
+# RUN /usr/bin/apt install -y -qq zip unzip tar wget expect mono-complete > /dev/null 2> /dev/stderr
 
 RUN /usr/bin/mkdir /tmp/tshock
 RUN /usr/bin/mkdir /tshock
@@ -37,9 +38,14 @@ RUN /usr/bin/mkdir /tshock/worlds /tshock/logs /tshock/config /tshock/plugins
 VOLUME [ "/tshock/worlds", "/tshock/logs", "/tshock/config", "/tshock/plugins" ]
 
 WORKDIR /tshock
+RUN cp /tshock/ServerPlugins/* /tshock/plugins
+RUN rm -rf /tshock/ServerPlugins
+RUN ln -s /tshock/plugins /tshock/ServerPlugins
+
+RUN while read -r -t 0; do read -r; done
 
 # Order: new world:world size:world difficulty:world evil:world name:choose world:players slots:port:port forwarding:password:exit command
-RUN echo 'n\n'${WORLD_SIZE}'\n'${WORLD_DIFFICULTY}'\n'${WORLD_EVIL}'\n'${WORLD_NAME}'\n\n1\n'${SERVER_MAX_SLOTS}'\n'${SERVER_PORT}'\n'${SERVER_FORWARD_PORT}'\n'${SERVER_PASSWORD}'\n/off\n' \
+RUN echo 'n\n'${WORLD_SIZE}'\n'${WORLD_DIFFICULTY}'\n'${WORLD_EVIL}'\n'${WORLD_NAME}'\n\n1\n'${SERVER_MAX_SLOTS}'\n'${SERVER_PORT}'\n'${SERVER_FORWARD_PORT}'\n'${SERVER_PASSWORD}'\n/off\n/off\n' \
  | /tshock/TShock.Installer -configpath /tshock/config/ -worldselectpath /tshock/worlds/ -worldpath /tshock/worlds/ -logpath /tshock/logs/
 ENV DOTNET_ROOT=/tshock/dotnet
 ENV WORLD_NAME=/tshock/worlds/${WORLD_NAME}.wld
