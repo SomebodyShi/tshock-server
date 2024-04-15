@@ -46,10 +46,10 @@ RUN while read -r -t 0; do read -r; done
 
 # Order: new world:world size:world difficulty:world evil:world name:choose world:players slots:port:port forwarding:password:exit command
 RUN echo 'n\n'${WORLD_SIZE}'\n'${WORLD_DIFFICULTY}'\n'${WORLD_EVIL}'\n'${WORLD_NAME}'\n\n1\n'${SERVER_MAX_SLOTS}'\n'${SERVER_PORT}'\n'${SERVER_FORWARD_PORT}'\n'${SERVER_PASSWORD}'\n/off\n/off\n' \
- | /tshock/TShock.Installer -configpath /tshock/config/ -worldselectpath /tshock/worlds/ -worldpath /tshock/worlds/ -logpath /tshock/logs/
+| /tshock/TShock.Installer -configpath /tshock/config/ -worldselectpath /tshock/worlds/ -worldpath /tshock/worlds/ -logpath /tshock/logs/
 ENV DOTNET_ROOT=/tshock/dotnet
-ENV WORLD_NAME=/tshock/worlds/${WORLD_NAME}.wld
 
+RUN /usr/bin/echo /tshock/worlds/${WORLD_NAME} > /tshock/worlds/SelectedWorld.txt
 RUN sed -i -e 's/"ServerPassword": "",/"ServerPassword": "'${SERVER_PASSWORD}'",/g' /tshock/config/config.json
 RUN sed -i -e 's/"ServerPort": 7777,/"ServerPort": '${SERVER_PORT}',/g' /tshock/config/config.json
 RUN sed -i -e 's/"MaxSlots": 8,/"MaxSlots": '${SERVER_MAX_SLOTS}',/g' /tshock/config/config.json
@@ -59,4 +59,4 @@ RUN /bin/bash -c 'echo -i -e "Setup code: $(cat /tshock/config/setup-code.txt)"'
 
 EXPOSE 7777
 
-ENTRYPOINT /tshock/TShock.Server -configpath /tshock/config/ -config /tshock/config/config.json -worldpath /tshock/worlds/ -logpath /tshock/logs/ -world $WORLD_NAME
+ENTRYPOINT /tshock/TShock.Server -configpath /tshock/config/ -config /tshock/config/config.json -worldpath /tshock/worlds/ -logpath /tshock/logs/ -world $(cat /tshock/worlds/SelectedWorld.txt).wld
